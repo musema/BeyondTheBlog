@@ -2,6 +2,7 @@
 const createBlogService=require('./blog/createBlogService.js');
 const getBlogsByPresenterIdService=require('./blog/getBlogsByPresenterIdService.js');
 const getBlogsByBlogIdService=require('./blog/getBlogsByBlogIdService.js');
+//will add more files here
 
 //POST:/blogs
 module.exports.createBlog = async (event, context) => {
@@ -21,5 +22,5 @@ module.exports.getBlogsByPresenterId = async (event, context) => {
 module.exports.getBlogsByBlogId = async (event, context) => {
   return getBlogsByBlogIdService.getBlogsByBlogId(event,context);
 };
-
+//more contraollers here
 
