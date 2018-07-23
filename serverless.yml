@@ -1,0 +1,109 @@
+service: 'serverless-dmi-blog'
+
+custom:
+  blogTableName: 'serverless-dmi-blog-table-${self:provider.stage}'
+
+provider:
+  name: 'aws'
+  runtime: 'nodejs8.10'
+  stage: 'dev'
+  region: 'us-east-1'
+  environment:
+    API_VERSION: '2018-07-27'
+    BLOG_TABLE: ${self:custom.blogTableName}
+    API_DEPLOY_REGION: ${self:provider.region}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["BlogTable", "Arn" ] }
+        - { "Fn::Join": [ "/", [ 
+           { "Fn::GetAtt": ["BlogTable", "Arn" ] }, "index", "blogCategoryIndex" 
+          ]]}
+        - { "Fn::Join": [ "/", [
+            { "Fn::GetAtt": ["BlogTable", "Arn" ] }, "index", "presenterIndex" 
+          ]]}
+        - { "Fn::Join": [ "/", [
+            { "Fn::GetAtt": ["BlogTable", "Arn" ] }, "index", "startTimeIndex" 
+          ]]}
+
+functions:
+  createBlog:
+    handler: handler.createBlog
+    events:
+      - http: 
+          method: POST
+          path: /blogs
+          private: false
+  getBlogs:
+    handler: handler.getBlogsByBlogId
+    events:
+      - http: 
+          method: GET
+          path: /blogs
+          private: false
+  getBlogsByPresenterId:
+    handler: handler.getBlogsByPresenterId
+    events:
+      - http: 
+          method: GET
+          path: /blogs/presenter/{presenterId}
+          private: false
+
+#Resources definition
+
+resources:
+  Resources:
+    BlogTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: blogId
+            AttributeType: S
+          - AttributeName: blogCategory
+            AttributeType: S
+          - AttributeName: startTime
+            AttributeType: S
+          - AttributeName: presenterId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: blogId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: blogCategoryIndex
+            KeySchema:
+              - AttributeName: blogCategory
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+          - IndexName: presenterIndex
+            KeySchema:
+              - AttributeName: presenterId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+          - IndexName: startTimeIndex
+            KeySchema:
+              - AttributeName: startTime
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.blogTableName}
