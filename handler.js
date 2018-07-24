@@ -22,5 +22,5 @@ module.exports.getBlogsByPresenterId = async (event, context) => {
 module.exports.getBlogsByBlogId = async (event, context) => {
   return getBlogsByBlogIdService.getBlogsByBlogId(event,context);
 };
-//more contraollers here
+//changes made here
 
