@@ -41,13 +41,23 @@ functions:
           method: POST
           path: /blogs
           private: false
+          cors: true 
   getBlogs:
-    handler: handler.getBlogsByBlogId
+    handler: handler.getBlogs
     events:
       - http: 
           method: GET
           path: /blogs
           private: false
+          cors: true
+  getBlogsByBlogId:
+    handler: handler.getBlogsByBlogId
+    events:
+      - http: 
+          method: GET
+          path: /blogs/blog/{blogId}
+          private: false
+          cors: true
   getBlogsByPresenterId:
     handler: handler.getBlogsByPresenterId
     events:
@@ -55,6 +65,7 @@ functions:
           method: GET
           path: /blogs/presenter/{presenterId}
           private: false
+          cors: true
 
 #Resources definition
 
